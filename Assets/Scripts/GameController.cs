@@ -2,6 +2,21 @@
 using System.Collections;
 using UnityEngine.UI;
 
+[System.Serializable]
+public class Player
+{
+    public Image panel;
+    public Text text;
+    public Button button;
+}
+
+[System.Serializable]
+public class PlayerColor
+{
+    public Color panelColor;
+    public Color textColor;
+}
+
 public class GameController : MonoBehaviour {
     public Text[] buttonList;
     private string playerSide;
@@ -9,6 +24,54 @@ public class GameController : MonoBehaviour {
     public Text gameOverText;
     private int moveCount;
     public GameObject restartButton;
+    public Player playerX;
+    public Player playerO;
+    public PlayerColor activePlayerColor;
+    public PlayerColor inactivePlayerColor;
+    public GameObject startInfo;
+
+    void SetPlayerColorsInactive()
+    {
+        playerX.panel.color = inactivePlayerColor.panelColor;
+        playerX.text.color = inactivePlayerColor.textColor;
+        playerO.panel.color = inactivePlayerColor.panelColor;
+        playerO.text.color = inactivePlayerColor.textColor;
+    }
+
+    void SetPlayerButtons (bool toggle)
+    {
+        playerX.button.interactable = toggle;
+        playerO.button.interactable = toggle;
+    }
+
+    void StartGame ()
+    {
+        startInfo.SetActive(false);
+        SetPlayerButtons(false);
+        SetBoardInteractable(true);
+    }
+
+    public void SetStartingSide(string startingSide)
+    {
+        playerSide = startingSide;
+        if (playerSide == "X")
+        {
+            SetPlayerColors(playerX, playerO);
+        }
+        else
+        {
+            SetPlayerColors(playerO, playerX);
+        }
+        StartGame();
+    }
+
+    void SetPlayerColors (Player newPlayer, Player oldPlayer)
+    {
+        newPlayer.panel.color = activePlayerColor.panelColor;
+        newPlayer.text.color = activePlayerColor.textColor;
+        oldPlayer.panel.color = inactivePlayerColor.panelColor;
+        oldPlayer.text.color = inactivePlayerColor.textColor;
+    }
 
     void SetGameControllerReferenceButtons ()
     {
@@ -24,7 +87,6 @@ public class GameController : MonoBehaviour {
         moveCount = 0;
         gameOverPanel.SetActive(false);
         SetGameControllerReferenceButtons();
-        playerSide = "X";
     }
 
     public string GetPlayerSide ()
@@ -40,47 +102,48 @@ public class GameController : MonoBehaviour {
         {
             GameOver(playerSide);
         }
-        if (buttonList[3].text == playerSide && buttonList[4].text == playerSide && buttonList[5].text == playerSide)
+        else if (buttonList[3].text == playerSide && buttonList[4].text == playerSide && buttonList[5].text == playerSide)
         {
             GameOver(playerSide);
         }
 
-        if (buttonList[6].text == playerSide && buttonList[7].text == playerSide && buttonList[8].text == playerSide)
+        else if (buttonList[6].text == playerSide && buttonList[7].text == playerSide && buttonList[8].text == playerSide)
         {
             GameOver(playerSide);
         }
 
-        if (buttonList[0].text == playerSide && buttonList[3].text == playerSide && buttonList[6].text == playerSide)
+        else if (buttonList[0].text == playerSide && buttonList[3].text == playerSide && buttonList[6].text == playerSide)
         {
             GameOver(playerSide);
         }
 
-        if (buttonList[1].text == playerSide && buttonList[4].text == playerSide && buttonList[7].text == playerSide)
+        else if (buttonList[1].text == playerSide && buttonList[4].text == playerSide && buttonList[7].text == playerSide)
         {
             GameOver(playerSide);
         }
 
-        if (buttonList[2].text == playerSide && buttonList[5].text == playerSide && buttonList[8].text == playerSide)
+        else if (buttonList[2].text == playerSide && buttonList[5].text == playerSide && buttonList[8].text == playerSide)
         {
             GameOver(playerSide);
         }
 
-        if (buttonList[0].text == playerSide && buttonList[4].text == playerSide && buttonList[8].text == playerSide)
+        else if (buttonList[0].text == playerSide && buttonList[4].text == playerSide && buttonList[8].text == playerSide)
         {
             GameOver(playerSide);
         }
 
-        if (buttonList[2].text == playerSide && buttonList[4].text == playerSide && buttonList[6].text == playerSide)
+        else if (buttonList[2].text == playerSide && buttonList[4].text == playerSide && buttonList[6].text == playerSide)
         {
             GameOver(playerSide);
         }
 
-        if (moveCount >= 9)
+        else if (moveCount >= 9)
         {
             GameOver("draw");
+        }else
+        {
+            ChangeSides();
         }
-
-        ChangeSides();
     }
 
     void GameOver(string winningPlayer)
@@ -90,6 +153,7 @@ public class GameController : MonoBehaviour {
         if ( winningPlayer == "draw")
         {
             SetGameOverText("It's a draw!");
+            SetPlayerColorsInactive();
         }
         else
         {
@@ -105,17 +169,26 @@ public class GameController : MonoBehaviour {
 
     void ChangeSides()
     {
-        playerSide = (playerSide == "X") ? "O" : "X";
+        if (playerSide == "X")
+        {
+            playerSide = "O";
+            SetPlayerColors(playerX, playerO);
+        }else
+        {
+            playerSide = "X";
+            SetPlayerColors(playerO, playerX);
+        }
     }
 
     public void RestartGame()
     {
+        startInfo.SetActive(true);
         restartButton.SetActive(false);
-        playerSide = "X";
         moveCount = 0;
         gameOverPanel.SetActive(false);
+        SetPlayerButtons(true);
+        SetPlayerColorsInactive();
 
-        SetBoardInteractable(true);
         for (int i = 0; i < buttonList.Length; i++)
         {
             buttonList[i].text = "";
